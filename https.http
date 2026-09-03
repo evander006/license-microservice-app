@@ -1,0 +1,30 @@
+### GET request to example server
+POST http://localhost:8080/v1/organization/optima/license
+Content-Type: application/json
+
+{
+  "id": 1,
+  "licenseId": "lic-1001",
+  "descr": "Software product",
+  "productName": "Ostock",
+  "licenseType": "full"
+}
+###
+###
+GET http://localhost:8080/v1/organization/optima/license/1
+###
+
+###
+PUT http://localhost:8080/v1/organization/optima/license
+Content-Type: application/json
+
+{
+  "licenseId": "new id license",
+  "descr": "new product",
+  "productName": "no name",
+  "licenseType": "e,pty"
+}
+
+###
+DELETE http://localhost:8080/v1/organization/optima/license/1
+###
