@@ -14,6 +14,7 @@ import java.util.Locale;
 import java.util.ResourceBundle;
 
 @SpringBootApplication
+@RefreshScope
 public class MicroserviceApplication {
 
     public static void main(String[] args) {

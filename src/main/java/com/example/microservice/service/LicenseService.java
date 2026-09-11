@@ -14,7 +14,6 @@ public class LicenseService {
         license.setOrgId(organizationId);
         license.setDescr("Software product");
         license.setProductName("Ostock");
-        license.setLicenseType("full");
         return license;
     }
     public String createLicense(License license, String orgId){
