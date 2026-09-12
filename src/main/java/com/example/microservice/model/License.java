@@ -11,7 +11,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
-@Entity(name = "licenses")
+@Entity(name = "license")
 public class License {
     @Id
     @Column(name = "license_id", nullable = false)

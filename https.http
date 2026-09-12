@@ -3,9 +3,9 @@ POST http://localhost:8080/v1/organization/optima/license
 Content-Type: application/json
 
 {
-  "id": 1,
   "licenseId": "lic-1001",
-  "descr": "Software product",
+  "description": "Software product",
+  "organizationId": "123",
   "productName": "Ostock",
   "licenseType": "full"
 }

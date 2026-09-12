@@ -24,18 +24,18 @@ public class LicenseController {
         return ResponseEntity.status(HttpStatus.OK).body(license);
     }
     @PutMapping
-    public ResponseEntity<String> updateLicense(@RequestBody License license,@PathVariable("organizationId") String organizationId){
-        var licenseUpdated=licenseService.updateLicense(license, organizationId);
+    public ResponseEntity<License> updateLicense(@RequestBody License license){
+        var licenseUpdated=licenseService.updateLicense(license);
         return ResponseEntity.status(HttpStatus.OK).body(licenseUpdated);
     }
     @PostMapping
-    public ResponseEntity<String> postLicense(@RequestBody License license,@PathVariable("organizationId") String organizationId){
-        var licenseToCreate=licenseService.createLicense(license, organizationId);
+    public ResponseEntity<License> postLicense(@RequestBody License license){
+        var licenseToCreate=licenseService.createLicense(license);
         return ResponseEntity.status(HttpStatus.CREATED).body(licenseToCreate);
     }
     @DeleteMapping("/{licenseId}")
-    public ResponseEntity<String> postLicense(@PathVariable("licenseId") String licenseId,@PathVariable("organizationId") String organizationId){
-        var licenseToDelete=licenseService.deleteLicense(licenseId, organizationId);
+    public ResponseEntity<String> postLicense(@PathVariable("licenseId") String licenseId){
+        var licenseToDelete=licenseService.deleteLicense(licenseId);
         return ResponseEntity.status(HttpStatus.OK).body(licenseToDelete);
     }
 }
