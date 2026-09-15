@@ -1,2 +1,3 @@
 rootProject.name = 'microservice'
 include 'config-server'
+include 'organization'

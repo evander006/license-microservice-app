@@ -1,0 +1,92 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: microservice_db
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mysecretpassword
+      POSTGRES_DB: licenses
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - backend
+
+  licensing-service:
+    image: ostock/microservice:0.0.1-SNAPSHOT
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: build/libs/microservice-0.0.1-SNAPSHOT.jar
+    ports:
+      - "8080:8080"
+    environment:
+      SERVER_PORT: 8080
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/licenses
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8071
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8070/eureka/
+    depends_on:
+      - postgres
+      - config-server
+      - eureka-server
+    networks:
+      - backend
+
+  config-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: config-server/build/libs/config-server-0.0.1-SNAPSHOT.jar
+    ports:
+      - "8071:8071"
+    networks:
+      - backend
+
+  eureka-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: eureka-server/target/eureka-server-0.0.1-SNAPSHOT.jar
+    ports:
+      - "8070:8070"
+    environment:
+      SERVER_PORT: 8070
+      EUREKA_CLIENT_REGISTER_WITH_EUREKA: "false"
+      EUREKA_CLIENT_FETCH_REGISTRY: "false"
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8071
+    depends_on:
+      - config-server
+    networks:
+      - backend
+  organization:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        JAR_FILE: organization/build/libs/organization-0.0.1-SNAPSHOT.jar
+    ports:
+      - "8081:8081"
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/organizationdb
+      SPRING_CONFIG_IMPORT: configserver:http://config-server:8071
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8070/eureka/
+    depends_on:
+      - postgres
+      - config-server
+      - eureka-server
+    networks:
+      - backend
+
+networks:
+  backend:
+    driver: bridge
+
+volumes:
+  postgres-data:

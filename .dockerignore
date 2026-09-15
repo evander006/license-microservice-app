@@ -1,0 +1,17 @@
+# Git / IDE
+.git
+.idea
+*.iml
+
+# Gradle
+.gradle
+build
+!build/libs/*.jar
+!config-server/build/libs/*.jar
+!organization/build/libs/*.jar
+!eureka-server/target/*.jar
+
+# Source is compiled into the JAR; no need inside the image
+src
+https.http
+*.md

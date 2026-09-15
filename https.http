@@ -19,12 +19,17 @@ PUT http://localhost:8080/v1/organization/optima/license
 Content-Type: application/json
 
 {
-  "licenseId": "new id license",
-  "descr": "new product",
-  "productName": "no name",
-  "licenseType": "e,pty"
+  "licenseId": "lic-1001",
+  "description": "Software product",
+  "organizationId": "123",
+  "productName": "Ostock",
+  "licenseType": "full"
 }
 
 ###
 DELETE http://localhost:8080/v1/organization/optima/license/1
+###
+
+###
+GET http://localhost:8070/eureka/apps
 ###
