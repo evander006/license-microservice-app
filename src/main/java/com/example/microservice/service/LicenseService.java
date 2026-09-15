@@ -3,6 +3,7 @@ package com.example.microservice.service;
 import com.example.microservice.LicenseRepository;
 import com.example.microservice.config.ServiceConfig;
 import com.example.microservice.model.License;
+import com.example.microservice.model.Organization;
 import lombok.AllArgsConstructor;
 import org.springframework.context.MessageSource;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,23 @@ public class LicenseService {
         }
         return license.withComment(config.getProperty());
     }
+    public License getLicense(String licenseId, String organizationId, String clientType){
+        License license = licenseRepository.findByOrganizationIdAndLicenseId(organizationId, licenseId);
+        if (license==null){
+            throw new IllegalArgumentException(
+                    String.format(messageSource.getMessage(
+                                    "license.search.error.message", null, null),
+                            licenseId, organizationId));
+        }
+        var org=retrieveOrganizationInfo(organizationId, clientType);
+        if (org!=null) {
+            license.setOrganizationName(org.getName());
+            license.setContactName(org.getContactName());
+            license.setContactEmail(org.getContactEmail());
+            license.setContactPhone(org.getContactPhone());
+        }
+        return license.withComment(config.getProperty());
+    }
     public License createLicense(License license){
         license.setLicenseId(UUID.randomUUID().toString());
         licenseRepository.save(license);
@@ -44,4 +62,7 @@ public class LicenseService {
         return responseMessage;
     }
 
+    private Organization retrieveOrganizationInfo(String organizationId, String clientType) {
+        return null;
+    }
 }
