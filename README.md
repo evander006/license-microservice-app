@@ -46,7 +46,7 @@ flowchart LR
 <summary>📼 Open the terminal tape</summary>
 
 ```text
- $  docker compose up -d
+ $  docker compose up -d --build
  >  postgres        ... UP
  >  config-server   ... 8071
  >  eureka-server   ... 8070
@@ -62,15 +62,19 @@ flowchart LR
 
 ## Wake the city
 
-From the repo root (JAR first, then images):
+Docker Compose **builds the JARs inside the images**. You do not need to run Gradle/Maven first.
+
+From the repo root (PowerShell, cmd, or bash — same command):
 
 ```bash
-./gradlew bootJar :config-server:bootJar :organization:bootJar
-./eureka-server/mvnw -f eureka-server/pom.xml package
 docker compose up -d --build
 ```
 
+The first run downloads JDK/Maven/Gradle caches and compiles four services; later runs reuse the images. Docker Desktop must be running.
+
 Do **not** also hit Run in the IDE on the same ports. One process per socket.
+
+If Compose ever tries to pull `ostock/microservice` or fails with `*.jar: not found`, you are on an old checkout — this repo no longer copies host JARs and no longer references that Hub image.
 
 | Check | URL |
 |---|---|
@@ -79,6 +83,28 @@ Do **not** also hit Run in the IDE on the same ports. One process per socket.
 | Config | http://localhost:8071/licensing-service/dev |
 | License API | http://localhost:8080/v1/organization/{orgId}/license |
 | Org API | http://localhost:8081/v1/organization/{orgId} |
+
+### On a machine that is not yours
+
+Docker is the only prerequisite — no JDK, no Gradle, no Maven, no Postgres on the host.
+
+```bash
+git clone https://github.com/evander006/license-microservice-app.git
+cd license-microservice-app
+docker compose up -d --build
+```
+
+Works the same on Windows, macOS (Intel and Apple Silicon), and Linux. Everyday commands:
+
+```bash
+docker compose ps                      # who is up, who is healthy
+docker compose logs -f licensing-service
+docker compose up -d --build           # rebuild after pulling new commits
+docker compose down                    # stop, keep the database volume
+docker compose down -v                 # stop and wipe the database
+```
+
+Ports `5432`, `8070`, `8071`, `8080`, `8081` must be free on the host.
 
 ---
 

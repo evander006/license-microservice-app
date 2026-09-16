@@ -11,28 +11,11 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
       - ./docker/postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
-    networks:
-      - backend
-
-  licensing-service:
-    image: ostock/microservice:0.0.1-SNAPSHOT
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        JAR_FILE: build/libs/microservice-0.0.1-SNAPSHOT.jar
-    ports:
-      - "8080:8080"
-    environment:
-      SERVER_PORT: 8080
-      SPRING_PROFILES_ACTIVE: dev
-      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/licenses
-      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8071
-      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8070/eureka/
-    depends_on:
-      - postgres
-      - config-server
-      - eureka-server
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d licenses"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
     networks:
       - backend
 
@@ -40,47 +23,112 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        JAR_FILE: config-server/build/libs/config-server-0.0.1-SNAPSHOT.jar
+      target: config-server
+    pull_policy: build
     ports:
       - "8071:8071"
+    environment:
+      SERVER_PORT: 8071
+      SPRING_PROFILES_ACTIVE: native
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/127.0.0.1/8071'"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 40s
     networks:
       - backend
 
   eureka-server:
     build:
-      context: .
+      context: ./eureka-server
       dockerfile: Dockerfile
-      args:
-        JAR_FILE: eureka-server/target/eureka-server-0.0.1-SNAPSHOT.jar
+    pull_policy: build
     ports:
       - "8070:8070"
     environment:
       SERVER_PORT: 8070
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8071
+      SPRING_CLOUD_CONFIG_URI: http://config-server:8071
+      EUREKA_INSTANCE_HOSTNAME: eureka-server
       EUREKA_CLIENT_REGISTER_WITH_EUREKA: "false"
       EUREKA_CLIENT_FETCH_REGISTRY: "false"
-      SPRING_CLOUD_CONFIG_URI: http://config-server:8071
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8070/eureka/
     depends_on:
-      - config-server
+      config-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/127.0.0.1/8070'"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 40s
     networks:
       - backend
+
   organization:
     build:
       context: .
       dockerfile: Dockerfile
-      args:
-        JAR_FILE: organization/build/libs/organization-0.0.1-SNAPSHOT.jar
+      target: organization
+    pull_policy: build
     ports:
       - "8081:8081"
     environment:
+      SERVER_PORT: 8081
       SPRING_PROFILES_ACTIVE: dev
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/organizationdb
-      SPRING_CONFIG_IMPORT: configserver:http://config-server:8071
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: mysecretpassword
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8071
       EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8070/eureka/
+      EUREKA_INSTANCE_PREFERIPADDRESS: "true"
     depends_on:
-      - postgres
-      - config-server
-      - eureka-server
+      postgres:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/127.0.0.1/8081'"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 50s
+    networks:
+      - backend
+
+  licensing-service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: licensing-service
+    pull_policy: build
+    ports:
+      - "8080:8080"
+    environment:
+      SERVER_PORT: 8080
+      SPRING_PROFILES_ACTIVE: dev
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/licenses
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: mysecretpassword
+      SPRING_CONFIG_IMPORT: optional:configserver:http://config-server:8071
+      EUREKA_CLIENT_SERVICEURL_DEFAULTZONE: http://eureka-server:8070/eureka/
+      EUREKA_INSTANCE_PREFERIPADDRESS: "true"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      config-server:
+        condition: service_healthy
+      eureka-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "bash -c 'echo > /dev/tcp/127.0.0.1/8080'"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 50s
     networks:
       - backend
 
