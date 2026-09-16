@@ -1,8 +1,4 @@
 <p align="center">
-  <img src="docs/ostock-orbit.svg" alt="Services orbiting Eureka" width="920"/>
-</p>
-
-<p align="center">
   <img src="https://readme-typing-svg.demolab.com?font=JetBrains+Mono&weight=600&size=26&pause=1200&color=7C5CFF&center=true&vCenter=true&width=720&lines=Not+a+monolith.;A+small+city+of+JVMs.;They+find+each+other+in+the+dark." alt="typing headline"/>
 </p>
 
