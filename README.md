@@ -84,6 +84,28 @@ If Compose ever tries to pull `ostock/microservice` or fails with `*.jar: not fo
 | License API | http://localhost:8080/v1/organization/{orgId}/license |
 | Org API | http://localhost:8081/v1/organization/{orgId} |
 
+### On a machine that is not yours
+
+Docker is the only prerequisite — no JDK, no Gradle, no Maven, no Postgres on the host.
+
+```bash
+git clone https://github.com/evander006/license-microservice-app.git
+cd license-microservice-app
+docker compose up -d --build
+```
+
+Works the same on Windows, macOS (Intel and Apple Silicon), and Linux. Everyday commands:
+
+```bash
+docker compose ps                      # who is up, who is healthy
+docker compose logs -f licensing-service
+docker compose up -d --build           # rebuild after pulling new commits
+docker compose down                    # stop, keep the database volume
+docker compose down -v                 # stop and wipe the database
+```
+
+Ports `5432`, `8070`, `8071`, `8080`, `8081` must be free on the host.
+
 ---
 
 ## A tiny ritual (data is not magic)
