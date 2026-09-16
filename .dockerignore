@@ -1,17 +1,19 @@
-# Git / IDE
 .git
 .idea
+.vscode
 *.iml
+*.iws
+*.ipr
+.DS_Store
 
-# Gradle
 .gradle
-build
-!build/libs/*.jar
-!config-server/build/libs/*.jar
-!organization/build/libs/*.jar
-!eureka-server/target/*.jar
+**/build
+**/out
+**/bin
+**/target
 
-# Source is compiled into the JAR; no need inside the image
-src
-https.http
+docs
 *.md
+https.http
+
+**/src/test

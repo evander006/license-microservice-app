@@ -46,7 +46,7 @@ flowchart LR
 <summary>📼 Open the terminal tape</summary>
 
 ```text
- $  docker compose up -d
+ $  docker compose up -d --build
  >  postgres        ... UP
  >  config-server   ... 8071
  >  eureka-server   ... 8070
@@ -62,15 +62,19 @@ flowchart LR
 
 ## Wake the city
 
-From the repo root (JAR first, then images):
+Docker Compose **builds the JARs inside the images**. You do not need to run Gradle/Maven first.
+
+From the repo root (PowerShell, cmd, or bash — same command):
 
 ```bash
-./gradlew bootJar :config-server:bootJar :organization:bootJar
-./eureka-server/mvnw -f eureka-server/pom.xml package
 docker compose up -d --build
 ```
 
+The first run downloads JDK/Maven/Gradle caches and compiles four services; later runs reuse the images. Docker Desktop must be running.
+
 Do **not** also hit Run in the IDE on the same ports. One process per socket.
+
+If Compose ever tries to pull `ostock/microservice` or fails with `*.jar: not found`, you are on an old checkout — this repo no longer copies host JARs and no longer references that Hub image.
 
 | Check | URL |
 |---|---|
